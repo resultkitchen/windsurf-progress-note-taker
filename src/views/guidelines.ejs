@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickNotes - Guidelines Setup</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .guidelines-panel {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .guidelines-content {
+            padding: 1.5rem;
+        }
+        .markdown-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        .pell-content {
+            min-height: 300px;
+        }
+        .pell-actionbar {
+            background: #f8f9fa;
+            padding: 8px;
+        }
+        .pell-button {
+            background: transparent;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-right: 4px;
+        }
+        .pell-button:hover {
+            background: #e9ecef;
+        }
+        .pell-button.pell-button-selected {
+            background: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Progress Steps -->
+                <div class="d-flex align-items-center mb-5">
+                    <div class="progress-step active">1</div>
+                    <h6 class="mb-0 me-4">Guidelines Setup</h6>
+                    <div class="progress-step">2</div>
+                    <h6 class="mb-0">Sample Notes</h6>
+                </div>
+
+                <!-- Guidelines Form -->
+                <div class="guidelines-form animate-fade-in">
+                    <h2 class="mb-4">Set Up Your Evaluation Guidelines</h2>
+                    <p class="text-muted mb-4">Define the criteria that will be used to evaluate progress notes. Be specific and include all important aspects you want to check in each note.</p>
+
+                    <form id="guidelinesForm" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <label for="guidelines" class="form-label">Guidelines Content</label>
+                            <textarea 
+                                class="form-control" 
+                                id="guidelines" 
+                                name="content" 
+                                rows="10" 
+                                required
+                                placeholder="Enter your guidelines here...&#10;&#10;Example:&#10;1. Each note must include the date and location&#10;2. Document specific activities and interventions&#10;3. Include client's response to interventions&#10;4. Note any progress or challenges&#10;5. End with plan for next session"
+                            ><%= guideline ? guideline.content : '' %></textarea>
+                            <div class="invalid-feedback">
+                                Please enter your guidelines content.
+                            </div>
+                        </div>
+
+                        <!-- Error Alert -->
+                        <div id="errorAlert" class="alert alert-danger" style="display: none;" role="alert"></div>
+
+                        <!-- Preview Section -->
+                        <div class="guidelines-preview mb-4" style="display: none;">
+                            <h5 class="mb-3">Preview</h5>
+                            <div id="guidelinesPreview" class="p-3 bg-light rounded"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-outline-secondary" id="previewBtn">
+                                <i class="fas fa-eye me-2"></i>Preview
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                Save Guidelines
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tips Section -->
+                <div class="dashboard-card mt-4">
+                    <h5 class="mb-3"><i class="fas fa-lightbulb text-warning me-2"></i>Tips for Writing Good Guidelines</h5>
+                    <ul class="mb-0">
+                        <li>Be specific and clear in your requirements</li>
+                        <li>Include both content and formatting expectations</li>
+                        <li>Consider including examples of good and bad practices</li>
+                        <li>Address common issues you've observed in notes</li>
+                        <li>Make guidelines actionable and measurable</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guidelines Page Scripts -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const guidelinesForm = document.getElementById('guidelinesForm');
+        const previewBtn = document.getElementById('previewBtn');
+        const previewSection = document.querySelector('.guidelines-preview');
+        const guidelinesInput = document.getElementById('guidelines');
+        const previewContent = document.getElementById('guidelinesPreview');
+        const submitBtn = document.getElementById('submitBtn');
+        const spinner = submitBtn.querySelector('.spinner-border');
+        const errorAlert = document.getElementById('errorAlert');
+
+        // Preview functionality
+        previewBtn.addEventListener('click', function() {
+            const content = guidelinesInput.value;
+            if (content.trim()) {
+                previewContent.innerHTML = content.replace(/\n/g, '<br>');
+                previewSection.style.display = 'block';
+                previewBtn.innerHTML = '<i class="fas fa-eye-slash me-2"></i>Hide Preview';
+            } else {
+                previewSection.style.display = 'none';
+                previewBtn.innerHTML = '<i class="fas fa-eye me-2"></i>Preview';
+            }
+        });
+
+        // Form submission
+        guidelinesForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!guidelinesForm.checkValidity()) {
+                e.stopPropagation();
+                guidelinesForm.classList.add('was-validated');
+                return;
+            }
+
+            // Hide any previous errors
+            errorAlert.style.display = 'none';
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            
+            try {
+                const response = await fetch('/api/guidelines', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: guidelinesInput.value.trim()
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    errorAlert.textContent = data.error || 'Failed to save guidelines';
+                    errorAlert.style.display = 'block';
+                    submitBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorAlert.textContent = 'Network error. Please try again.';
+                errorAlert.style.display = 'block';
+                submitBtn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        });
+    });
+    </script>
+
+    <%- include('partials/footer') %>
+</body>
+</html>

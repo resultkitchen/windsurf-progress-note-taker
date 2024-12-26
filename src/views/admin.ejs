@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head', { title: 'Admin Dashboard' }) %>
+    <style>
+        .note-editor {
+            min-height: 200px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .sample-note {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .sample-note pre {
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Sample Notes Management</h1>
+        
+        <!-- Add New Sample Note -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Add New Sample Note</h3>
+            </div>
+            <div class="card-body">
+                <form id="sampleNoteForm">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="description" name="description" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Note Content</label>
+                        <div class="note-editor" id="editor"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Sample Note</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Existing Sample Notes -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Existing Sample Notes</h3>
+            </div>
+            <div class="card-body">
+                <div id="sampleNotesList">
+                    <% sampleNotes.forEach(function(note) { %>
+                        <div class="sample-note" data-id="<%= note.id %>">
+                            <h4><%= note.title %></h4>
+                            <p class="text-muted"><%= note.description %></p>
+                            <pre><%= note.content %></pre>
+                            <button class="btn btn-danger btn-sm delete-note">Delete</button>
+                            <button class="btn btn-secondary btn-sm edit-note">Edit</button>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize rich text editor
+            const editor = new Pell({
+                element: document.getElementById('editor'),
+                onChange: html => {
+                    // Store content in hidden field if needed
+                },
+                actions: ['bold', 'italic', 'underline', 'paragraph', 'heading1', 'heading2', 'olist', 'ulist']
+            });
+
+            // Handle form submission
+            document.getElementById('sampleNoteForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    content: editor.content.innerHTML
+                };
+
+                try {
+                    const response = await fetch('/api/admin/sample-notes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Error saving sample note');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error saving sample note');
+                }
+            });
+
+            // Handle delete button clicks
+            document.querySelectorAll('.delete-note').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const noteId = this.closest('.sample-note').dataset.id;
+                    if (confirm('Are you sure you want to delete this sample note?')) {
+                        try {
+                            const response = await fetch(`/api/admin/sample-notes/${noteId}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (response.ok) {
+                                location.reload();
+                            } else {
+                                alert('Error deleting sample note');
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Error deleting sample note');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

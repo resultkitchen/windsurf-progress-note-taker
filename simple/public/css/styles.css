@@ -1,0 +1,272 @@
+/* Global Styles */
+body {
+    background-color: #f8f9fa;
+    padding-top: 56px;
+}
+
+.main-container {
+    padding: 2rem 0;
+}
+
+/* Section Styles */
+.section {
+    padding: 2rem 0;
+}
+
+/* Guidelines Section */
+.guidelines-section {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.sample-note {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.quality-rating {
+    margin-top: 1rem;
+}
+
+.pell {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    background: white;
+}
+
+.pell-content {
+    min-height: 200px;
+    padding: 1rem;
+}
+
+#guidelines-editor .pell-content {
+    min-height: 300px;
+}
+
+.pell-actionbar {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem;
+}
+
+.pell-button {
+    background-color: transparent;
+    border: none;
+    color: #495057;
+    cursor: pointer;
+    margin-right: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.pell-button:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.pell-button.active {
+    background-color: #e9ecef;
+    color: #0d6efd;
+}
+
+.completed {
+    border-left: 4px solid #198754;
+}
+
+/* Sample Notes */
+.sample-note {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: white;
+}
+
+/* Dashboard */
+.dashboard-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    height: 100%;
+}
+
+.dashboard-stat {
+    text-align: center;
+}
+
+.dashboard-stat-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.dashboard-stat-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Dashboard styles */
+.dashboard-card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.dashboard-card .card-title {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-card h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Note Cards */
+.note-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: white;
+}
+
+.note-card.improved {
+    border-left: 4px solid #198754;
+}
+
+.note-meta {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.note-card {
+    background-color: #fff;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.note-card:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.sample-note {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+}
+
+#current-guidelines {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+#edit-guidelines-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.note-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.note-quality, .note-meta {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Buttons and Forms */
+.btn-outline-secondary {
+    color: #495057;
+    border-color: #ced4da;
+}
+
+.btn-outline-secondary:hover {
+    color: #212529;
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .main-container {
+        padding: 1rem;
+    }
+    
+    .dashboard-card {
+        margin-bottom: 1rem;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn.loading {
+    position: relative;
+}
+
+.btn.loading::after {
+    content: '';
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+    position: absolute;
+    top: calc(50% - 0.5rem);
+    right: 0.5rem;
+}

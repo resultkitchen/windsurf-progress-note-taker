@@ -1,0 +1,20 @@
+{
+  "sampleNotes": [
+    {
+      "title": "Good Progress Note Example",
+      "content": "<p><strong>Subjective:</strong> Client reports improved mood and sleep over the past week. States \"I've been using the breathing techniques we discussed and they're really helping.\" Client engaged actively in session, maintaining good eye contact.</p><p><strong>Objective:</strong> Affect was bright and congruent. Speech clear and goal-directed. No signs of SI/HI. Good insight demonstrated into relationship patterns.</p><p><strong>Assessment:</strong> Client shows progress in anxiety management. CBT skills are being implemented effectively. Support system remains stable.</p><p><strong>Plan:</strong> Continue weekly sessions. Will work on expanding social support network. Next session scheduled for 1/5/24.</p>"
+    },
+    {
+      "title": "Brief Note Example",
+      "content": "<p>Met with client. Discussed anxiety. Gave homework. Will meet next week.</p>"
+    },
+    {
+      "title": "Detailed Treatment Note",
+      "content": "<p><strong>Session Focus:</strong> Trauma processing using EMDR</p><p><strong>Progress:</strong> Client successfully completed Phase 3 of EMDR protocol, identifying and processing childhood memory. Reported decrease in distress (SUD scale: 8 → 3).</p><p><strong>Interventions:</strong> Bilateral stimulation, cognitive interweaving, grounding techniques.</p><p><strong>Client Response:</strong> Good engagement, demonstrated emotional regulation skills when needed.</p><p><strong>Plan:</strong> Continue EMDR processing. Homework: practice safe place exercise 2x daily.</p>"
+    },
+    {
+      "title": "Crisis Session Note",
+      "content": "<p><strong>Urgent Session:</strong> Client presented in crisis due to relationship conflict.</p><p><strong>Risk Assessment:</strong> Denied current SI/HI. Has protective factors: supportive family, stable housing, engaged in treatment.</p><p><strong>Intervention:</strong> Crisis safety planning completed. Identified triggers and coping strategies. Connected with crisis support.</p><p><strong>Follow-up:</strong> Scheduled check-in for tomorrow at 2pm. Client agrees to use crisis line if needed before then.</p>"
+    }
+  ]
+}

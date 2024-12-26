@@ -1,0 +1,218 @@
+<%- include('partials/header') %>
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Stats Overview -->
+        <div class="col-12 mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-stat">
+                            <div class="dashboard-stat-value">89%</div>
+                            <div class="dashboard-stat-label">Average Score</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-stat">
+                            <div class="dashboard-stat-value">24</div>
+                            <div class="dashboard-stat-label">Notes Written</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card">
+                        <div class="dashboard-stat">
+                            <div class="dashboard-stat-value">+12%</div>
+                            <div class="dashboard-stat-label">Improvement</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-lg-8">
+            <!-- Note Editor -->
+            <div class="dashboard-card">
+                <h4 class="mb-4">Write a New Note</h4>
+                <div class="note-editor mb-3">
+                    <textarea 
+                        id="noteContent" 
+                        class="form-control" 
+                        rows="8" 
+                        placeholder="Start writing your progress note here..."
+                    ></textarea>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <button class="btn btn-outline-secondary" id="previewNote">
+                        <i class="fas fa-eye me-2"></i>Preview
+                    </button>
+                    <button class="btn btn-primary" id="evaluateNote">
+                        Evaluate Note<i class="fas fa-check ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Notes -->
+            <div class="dashboard-card mt-4">
+                <h4 class="mb-4">Recent Notes</h4>
+                <div class="list-group">
+                    <% if (recentNotes && recentNotes.length > 0) { %>
+                        <% recentNotes.forEach(function(note) { %>
+                            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1"><%= note.title || 'Untitled Note' %></h6>
+                                    <small class="text-muted"><%= new Date(note.created_at).toLocaleDateString() %></small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill"><%= note.score %>%</span>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-file-alt fa-3x mb-3"></i>
+                            <p>No notes yet. Start writing to see your history!</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Guidelines Summary -->
+            <div class="dashboard-card">
+                <h5 class="mb-3">Current Guidelines</h5>
+                <div class="guidelines-content">
+                    <%= guideline ? guideline.content : 'No guidelines set' %>
+                </div>
+                <div class="mt-3">
+                    <a href="/guidelines" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit me-1"></i>Edit Guidelines
+                    </a>
+                </div>
+            </div>
+
+            <!-- Latest Feedback -->
+            <div class="dashboard-card">
+                <h5 class="mb-3">Latest Feedback</h5>
+                <div id="latestFeedback">
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-comments fa-2x mb-2"></i>
+                        <p class="mb-0">Evaluate a note to see feedback</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="dashboard-card">
+                <h5 class="mb-3">Writing Tips</h5>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Be specific and detailed
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Use professional language
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Include measurable outcomes
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Document client responses
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Note Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Note Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="notePreviewContent" class="p-3 bg-light rounded"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Scripts -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const noteContent = document.getElementById('noteContent');
+    const previewNote = document.getElementById('previewNote');
+    const evaluateNote = document.getElementById('evaluateNote');
+    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+    const notePreviewContent = document.getElementById('notePreviewContent');
+    const latestFeedback = document.getElementById('latestFeedback');
+
+    // Preview Note
+    previewNote.addEventListener('click', function() {
+        notePreviewContent.innerHTML = noteContent.value.replace(/\n/g, '<br>');
+        previewModal.show();
+    });
+
+    // Evaluate Note
+    evaluateNote.addEventListener('click', async function() {
+        const content = noteContent.value.trim();
+        if (!content) {
+            alert('Please write a note before evaluating.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/evaluate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    content: content
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update feedback section
+                latestFeedback.innerHTML = `
+                    <div class="note-score mb-3">${data.score}%</div>
+                    <div class="note-feedback">
+                        <h6>Strengths:</h6>
+                        <ul class="mb-3">
+                            ${data.strengths.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+                        <h6>Areas for Improvement:</h6>
+                        <ul class="mb-0">
+                            ${data.improvements.map(i => `<li>${i}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+
+                // Clear the note content
+                noteContent.value = '';
+                
+                // Refresh the page to update stats
+                setTimeout(() => window.location.reload(), 3000);
+            } else {
+                alert('Error: ' + (data.error || 'Failed to evaluate note'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to evaluate note. Please try again.');
+        }
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

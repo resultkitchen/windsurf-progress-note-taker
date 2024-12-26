@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    
+    <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://unpkg.com/pell/dist/pell.css" rel="stylesheet">
+    <link href="/css/shared.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/header') %>
+    
+    <main class="page-container">
+        <div class="content-section">
+            <!-- Guidelines Display -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Progress Note Guidelines</h5>
+                    <button class="btn btn-link" onclick="toggleGuidelines()">
+                        <i class="bi bi-chevron-down" id="guidelinesIcon"></i>
+                    </button>
+                </div>
+                <div class="card-body" id="guidelinesContent">
+                    <%- guidelines %>
+                </div>
+            </div>
+            
+            <!-- Note Input -->
+            <div class="mb-4">
+                <label for="noteInput" class="form-label">Your Progress Note</label>
+                <div id="noteEditor" class="pell"></div>
+                <div class="form-text">
+                    Write your progress note following the guidelines above. The AI will evaluate and provide feedback.
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="d-flex justify-content-between mb-4">
+                <button class="btn btn-outline-secondary" onclick="clearNote()">
+                    <i class="bi bi-trash"></i> Clear
+                </button>
+                <button class="btn btn-primary" onclick="evaluateNote()">
+                    <i class="bi bi-check-circle"></i> Evaluate
+                </button>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="resultsSection" style="display: none;">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Quick Summary -->
+                        <div id="quickSummary" class="alert alert-info mb-3">
+                            <div id="summaryContent"></div>
+                        </div>
+                        
+                        <!-- Detailed Analysis -->
+                        <div id="detailedAnalysis">
+                            <h6>Optimized Version</h6>
+                            <div id="optimizedNote" class="border rounded p-3 bg-light"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <%- include('partials/footer') %>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/pell"></script>
+    <script src="/js/shared.js"></script>
+    
+    <script>
+        let editor;
+        let currentNote = '';
+        let suggestedImprovements = null;
+        
+        // Initialize Pell Editor
+        document.addEventListener('DOMContentLoaded', () => {
+            editor = window.pell.init({
+                element: document.getElementById('noteEditor'),
+                onChange: html => {
+                    currentNote = html;
+                },
+                actions: [
+                    'bold',
+                    'italic',
+                    'underline',
+                    'heading1',
+                    'heading2',
+                    'paragraph',
+                    'quote',
+                    'olist',
+                    'ulist'
+                ]
+            });
+        });
+        
+        // Toggle Guidelines
+        function toggleGuidelines() {
+            const content = document.getElementById('guidelinesContent');
+            const icon = document.getElementById('guidelinesIcon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+            } else {
+                content.style.display = 'none';
+                icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+            }
+        }
+        
+        // Clear Note
+        function clearNote() {
+            if (confirm('Are you sure you want to clear your note?')) {
+                editor.content.innerHTML = '';
+                currentNote = '';
+                hideResults();
+            }
+        }
+        
+        // Evaluate Note
+        async function evaluateNote() {
+            if (!currentNote.trim()) {
+                window.QuickNotes.showFeedback('Please write a note before evaluating', 'error');
+                return;
+            }
+            
+            const button = document.querySelector('button');
+            window.QuickNotes.showLoading(button);
+            
+            try {
+                const response = await fetch('/api/evaluate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        note: currentNote
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to evaluate note');
+                }
+                
+                showResults(data.evaluation);
+            } catch (error) {
+                window.QuickNotes.handleError(error, 'Evaluate Note');
+            } finally {
+                window.QuickNotes.hideLoading(button);
+            }
+        }
+        
+        // Show Results
+        function showResults(evaluation) {
+            const resultsSection = document.getElementById('resultsSection');
+            const summaryContent = document.getElementById('summaryContent');
+            const optimizedNote = document.getElementById('optimizedNote');
+            
+            // Display summary bullets
+            let summaryHtml = '<ul class="mb-0">';
+            evaluation.summary.forEach(point => {
+                summaryHtml += `<li>${point}</li>`;
+            });
+            summaryHtml += '</ul>';
+            summaryContent.innerHTML = summaryHtml;
+            
+            // Show optimized version if it's a progress note
+            if (evaluation.isProgressNote) {
+                optimizedNote.innerHTML = evaluation.optimizedVersion;
+                document.getElementById('detailedAnalysis').style.display = 'block';
+            } else {
+                document.getElementById('detailedAnalysis').style.display = 'none';
+            }
+            
+            resultsSection.style.display = 'block';
+        }
+        
+        // Hide Results
+        function hideResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('improvementSuggestions').style.display = 'none';
+            suggestedImprovements = null;
+        }
+    </script>
+</body>
+</html>

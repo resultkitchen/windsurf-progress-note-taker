@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding - Progress Note Evaluator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .step-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        .note-template {
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .note-editor {
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            min-height: 200px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="step-container">
+            <h2 class="mb-4">Set Up Your Progress Note Evaluator</h2>
+            
+            <!-- Step 1: Guidelines -->
+            <div class="step active" id="step1">
+                <h4>Step 1: Define Your Guidelines</h4>
+                <p class="text-muted mb-4">Enter the guidelines that will be used to evaluate progress notes.</p>
+                
+                <div class="form-group">
+                    <label for="guidelines">Guidelines</label>
+                    <div class="note-editor" contenteditable="true" id="guidelines">
+                        Enter your guidelines here...
+                    </div>
+                </div>
+                
+                <div class="text-end">
+                    <button class="btn btn-primary" onclick="nextStep(1)">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Note Templates -->
+            <div class="step" id="step2">
+                <h4>Step 2: Create Note Templates</h4>
+                <p class="text-muted mb-4">Add templates that users can reference when writing their notes.</p>
+                
+                <div id="templates-container">
+                    <!-- Templates will be added here -->
+                </div>
+                
+                <button class="btn btn-outline-secondary mb-3" onclick="addTemplate()">
+                    <i class="bi bi-plus"></i> Add Template
+                </button>
+                
+                <div class="text-end">
+                    <button class="btn btn-secondary me-2" onclick="prevStep(2)">Previous</button>
+                    <button class="btn btn-primary" onclick="completeSetup()">Complete Setup</button>
+                </div>
+            </div>
+            
+            <!-- Success Message -->
+            <div class="step" id="success">
+                <div class="text-center">
+                    <h4 class="text-success mb-4">Setup Complete!</h4>
+                    <p>Your Progress Note Evaluator has been set up successfully.</p>
+                    <div class="mb-4">
+                        <p><strong>Master Access URL:</strong></p>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="masterUrl" readonly>
+                            <button class="btn btn-outline-secondary" onclick="copyUrl('masterUrl')">Copy</button>
+                        </div>
+                        <small class="text-muted">Save this URL to access your master dashboard.</small>
+                    </div>
+                    <a id="masterLink" class="btn btn-primary">Go to Master Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let templates = [];
+        
+        function nextStep(currentStep) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${currentStep + 1}`).classList.add('active');
+        }
+        
+        function prevStep(currentStep) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${currentStep - 1}`).classList.add('active');
+        }
+        
+        function addTemplate() {
+            const container = document.getElementById('templates-container');
+            const templateId = Date.now();
+            
+            const template = document.createElement('div');
+            template.className = 'note-template';
+            template.innerHTML = `
+                <div class="mb-3">
+                    <input type="text" class="form-control mb-2" placeholder="Template Name" 
+                           onchange="updateTemplate(${templateId}, 'name', this.value)">
+                    <div class="note-editor" contenteditable="true" 
+                         onblur="updateTemplate(${templateId}, 'content', this.innerHTML)">
+                        Enter template content...
+                    </div>
+                </div>
+                <button class="btn btn-outline-danger btn-sm" onclick="removeTemplate(${templateId})">
+                    Remove Template
+                </button>
+            `;
+            
+            container.appendChild(template);
+            templates.push({ id: templateId, name: '', content: '' });
+        }
+        
+        function updateTemplate(id, field, value) {
+            const template = templates.find(t => t.id === id);
+            if (template) {
+                template[field] = value;
+            }
+        }
+        
+        function removeTemplate(id) {
+            templates = templates.filter(t => t.id !== id);
+            const container = document.getElementById('templates-container');
+            const template = container.querySelector(`[data-id="${id}"]`);
+            if (template) {
+                container.removeChild(template);
+            }
+        }
+        
+        async function completeSetup() {
+            const guidelines = document.getElementById('guidelines').innerHTML;
+            const noteTemplates = templates.map(({ name, content }) => ({ name, content }));
+            
+            try {
+                const response = await fetch('/onboarding', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ guidelines, noteTemplates }),
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('step2').classList.remove('active');
+                    document.getElementById('success').classList.add('active');
+                    
+                    const masterUrl = window.location.origin + result.masterUrl;
+                    document.getElementById('masterUrl').value = masterUrl;
+                    document.getElementById('masterLink').href = result.masterUrl;
+                }
+            } catch (error) {
+                console.error('Error completing setup:', error);
+                alert('Error completing setup');
+            }
+        }
+        
+        function copyUrl(elementId) {
+            const input = document.getElementById(elementId);
+            input.select();
+            document.execCommand('copy');
+            alert('URL copied to clipboard!');
+        }
+    </script>
+</body>
+</html>

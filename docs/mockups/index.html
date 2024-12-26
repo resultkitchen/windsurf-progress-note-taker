@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickNotes - Professional Progress Note Assistant</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #2C7BE5;
+            --secondary-color: #6E84A3;
+            --success-color: #00B8D9;
+            --bg-light: #F9FBFD;
+            --danger-color: #E63757;
+            --warning-color: #F6C343;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #12263F;
+            line-height: 1.6;
+            padding-top: 4rem;
+        }
+
+        .content-wrapper {
+            min-height: calc(100vh - 60px);
+            padding-bottom: 60px;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--bg-light) 0%, #ffffff 100%);
+            padding: 6rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="%232C7BE5" opacity="0.1"/></svg>') repeat;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .feature-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            background: rgba(44, 123, 229, 0.1);
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border-radius: 1rem;
+            background: white;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: transform 0.2s;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .progress-step {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: var(--bg-light);
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 auto 1rem;
+        }
+
+        .progress-step.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .py-6 {
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 4rem 0;
+            }
+            .py-6 {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-white">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-pen-fancy me-2"></i>QuickNotes
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/guidelines">
+                            <i class="fas fa-list-check me-1"></i>Guidelines
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-chart-simple me-1"></i>Dashboard
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 animate-fade-in">
+                    <h1 class="display-4 fw-bold mb-4">Write Better Progress Notes with AI</h1>
+                    <p class="lead mb-4">QuickNotes helps you write professional, consistent, and high-quality progress notes with real-time AI feedback and evaluation.</p>
+                    <div class="d-flex gap-3">
+                        <a href="/guidelines" class="btn btn-primary btn-lg">Get Started</a>
+                        <a href="#features" class="btn btn-outline-secondary btn-lg">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block animate-fade-in">
+                    <img src="/img/hero-image.png" alt="QuickNotes Demo" class="img-fluid rounded-3 shadow-lg" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-6" id="features">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="fw-bold mb-3">Why Choose QuickNotes?</h2>
+                    <p class="lead text-muted">Streamline your note-taking process with powerful features</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h4>AI-Powered Evaluation</h4>
+                        <p class="text-muted mb-0">Get instant feedback on your notes with our advanced AI evaluation system.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h4>Quality Guidelines</h4>
+                        <p class="text-muted mb-0">Follow best practices with customizable guidelines and examples.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>Track Progress</h4>
+                        <p class="text-muted mb-0">Monitor your improvement with detailed feedback and scoring.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-6 bg-light">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="fw-bold mb-3">How It Works</h2>
+                    <p class="lead text-muted">Three simple steps to better progress notes</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="progress-step active">1</div>
+                        <h4>Set Guidelines</h4>
+                        <p class="text-muted">Define your evaluation criteria and quality standards</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="progress-step">2</div>
+                        <h4>Write Notes</h4>
+                        <p class="text-muted">Create your progress notes using our intuitive editor</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <div class="progress-step">3</div>
+                        <h4>Get Feedback</h4>
+                        <p class="text-muted">Receive instant AI evaluation and improvement suggestions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-6 bg-primary text-white">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-4">Ready to Improve Your Progress Notes?</h2>
+            <a href="/guidelines" class="btn btn-light btn-lg">Start Writing Better Notes Today</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4 bg-light mt-auto">
+        <div class="container">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto">
+                    <p class="mb-0">&copy; 2024 QuickNotes. All rights reserved.</p>
+                </div>
+                <div class="col-auto">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item">
+                            <a href="#" class="text-muted">Privacy Policy</a>
+                        </li>
+                        <li class="list-inline-item">•</li>
+                        <li class="list-inline-item">
+                            <a href="#" class="text-muted">Terms of Use</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Smooth Scroll -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

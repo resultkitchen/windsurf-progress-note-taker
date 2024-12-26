@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1><%= title %></h1>
+        <div class="sample-notes">
+            <% notes.forEach(note => { %>
+                <div class="note">
+                    <h2><%= note.title %></h2>
+                    <p class="description"><%= note.description %></p>
+                    <div class="note-content">
+                        <%= note.content %>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+        <a href="/" class="btn">Back to Home</a>
+    </div>
+</body>
+</html>

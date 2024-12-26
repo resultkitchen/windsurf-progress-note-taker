@@ -1,0 +1,66 @@
+/* Progress Bar */
+.progress-container {
+    margin: 20px 0;
+}
+
+.progress {
+    height: 10px;
+    border-radius: 5px;
+}
+
+/* Guidelines Section */
+.guidelines-textarea {
+    min-height: 200px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.note-textarea {
+    min-height: 150px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Feedback Display */
+.feedback-container {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+
+.feedback-score {
+    font-size: 24px;
+    font-weight: bold;
+    color: #198754;
+    margin-bottom: 15px;
+}
+
+.feedback-section {
+    margin-bottom: 15px;
+}
+
+.feedback-section h3 {
+    color: #495057;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.feedback-section ul {
+    margin-bottom: 0;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none;
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

@@ -1,0 +1,150 @@
+<%- include('partials/header') %>
+
+<div class="container my-4">
+    <!-- Editor Panel -->
+    <div class="card mb-4">
+        <div class="card-header bg-white editor-toolbar">
+            <button class="btn btn-sm btn-outline-secondary" onclick="formatText('bold')"><i class="bi bi-type-bold"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="formatText('italic')"><i class="bi bi-type-italic"></i></button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="formatText('list')"><i class="bi bi-list-ul"></i></button>
+            <div class="vr mx-2"></div>
+            <button class="btn btn-sm btn-outline-primary" onclick="showTemplates()">
+                <i class="bi bi-lightning"></i> Insert Template
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div id="editor" class="form-control border-0" style="min-height: 400px;" contenteditable="true">
+                Start writing your progress note here...
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="d-flex justify-content-between mb-4">
+        <button class="btn btn-outline-secondary" onclick="clearNote()">
+            <i class="bi bi-arrow-clockwise"></i> Clear
+        </button>
+        <button class="btn btn-primary btn-lg px-4" onclick="evaluateNote()">
+            <i class="bi bi-check-circle"></i> Evaluate Note
+        </button>
+    </div>
+
+    <!-- Evaluation Results -->
+    <div id="evaluationResults" class="card" style="display: none;">
+        <div class="card-body">
+            <h5 class="mb-3">Evaluation Results</h5>
+            
+            <!-- Score Overview -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Overall Score</h6>
+                <div id="overallScore" class="badge bg-success p-2">-</div>
+            </div>
+            
+            <!-- Section Scores -->
+            <div class="progress mb-4" style="height: 24px;">
+                <% guidelines.sections.forEach(function(section) { %>
+                    <div class="progress-bar" role="progressbar" style="width: 0%" id="score-<%= section.name %>">
+                        <%= section.name %>
+                    </div>
+                <% }); %>
+            </div>
+            
+            <!-- Feedback Items -->
+            <div id="feedbackItems"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentNote = '';
+
+function insertTemplate(sectionName) {
+    const templates = <%- JSON.stringify(guidelines.templates || {}) %>;
+    const template = templates[sectionName] || `${sectionName}:\n`;
+    
+    const editor = document.getElementById('editor');
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    
+    const templateNode = document.createElement('div');
+    templateNode.innerHTML = template;
+    range.insertNode(templateNode);
+    range.collapse(false);
+}
+
+function formatText(style) {
+    document.execCommand(style, false, null);
+}
+
+function clearNote() {
+    document.getElementById('editor').innerHTML = 'Start writing your progress note here...';
+    document.getElementById('evaluationResults').style.display = 'none';
+}
+
+async function evaluateNote() {
+    const note = document.getElementById('editor').innerText;
+    const results = await fetch('/api/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note })
+    }).then(r => r.json());
+
+    displayResults(results);
+}
+
+function displayResults(results) {
+    const resultsPanel = document.getElementById('evaluationResults');
+    resultsPanel.style.display = 'block';
+    
+    // Update overall score
+    document.getElementById('overallScore').textContent = `${results.overallScore}%`;
+    
+    // Update section scores
+    Object.entries(results.sectionScores || {}).forEach(([section, score]) => {
+        const bar = document.getElementById(`score-${section}`);
+        if (bar) {
+            bar.style.width = `${score}%`;
+            bar.className = `progress-bar bg-${getScoreClass(score)}`;
+        }
+    });
+    
+    // Display feedback
+    const feedbackContainer = document.getElementById('feedbackItems');
+    feedbackContainer.innerHTML = '';
+    
+    results.feedback.forEach(item => {
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = `feedback-item feedback-${getScoreClass(item.score)}`;
+        feedbackDiv.innerHTML = `
+            <strong>${item.section}</strong>
+            <p class="mb-0">${item.message}
+                ${item.suggestion ? `
+                    <button class="btn btn-sm btn-outline-primary ms-2" onclick="applySuggestion('${item.section}')">
+                        <i class="bi bi-magic"></i> Suggest Improvement
+                    </button>
+                ` : ''}
+            </p>
+        `;
+        feedbackContainer.appendChild(feedbackDiv);
+    });
+}
+
+function getScoreClass(score) {
+    if (score >= 80) return 'success';
+    if (score >= 60) return 'warning';
+    return 'danger';
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    // Toggle guidelines panel
+    const toggle = document.querySelector('.guidelines-toggle');
+    toggle.addEventListener('click', () => {
+        const icon = toggle.querySelector('.bi');
+        icon.classList.toggle('bi-chevron-up');
+        icon.classList.toggle('bi-chevron-down');
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

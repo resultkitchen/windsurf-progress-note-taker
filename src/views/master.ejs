@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    
+    <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://unpkg.com/pell/dist/pell.css" rel="stylesheet">
+    <link href="/css/shared.css" rel="stylesheet">
+    <style>
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 8px;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        .stat-card.primary { background: linear-gradient(45deg, #4e73df, #224abe); }
+        .stat-card.success { background: linear-gradient(45deg, #1cc88a, #13855c); }
+        .stat-card.warning { background: linear-gradient(45deg, #f6c23e, #dda20a); }
+        .stat-card.info { background: linear-gradient(45deg, #36b9cc, #258391); }
+
+        .sample-note {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .sample-note:hover {
+            background-color: #f8f9fa;
+        }
+
+        .sample-note h6 {
+            color: #2962ff;
+            margin-bottom: 0.25rem;
+        }
+
+        .sample-note .text-muted {
+            font-size: 0.875rem;
+        }
+
+        .editor-toolbar {
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-bottom: none;
+            border-radius: 0.25rem 0.25rem 0 0;
+        }
+
+        .editor-toolbar .btn {
+            padding: 0.25rem 0.5rem;
+            margin-right: 0.25rem;
+        }
+
+        .editor-content {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        .tag {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            background: #e9ecef;
+            margin-right: 0.5rem;
+        }
+
+        .feedback-item {
+            padding: 0.5rem;
+            border-left: 4px solid;
+            margin-bottom: 0.5rem;
+        }
+        .feedback-success { border-color: #28a745; background: #f8fff9; }
+        .feedback-warning { border-color: #ffc107; background: #fffdf8; }
+        .feedback-error { border-color: #dc3545; background: #fff8f8; }
+
+        .rich-text-content {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .rich-text-content h1, 
+        .rich-text-content h2, 
+        .rich-text-content h3, 
+        .rich-text-content h4, 
+        .rich-text-content h5, 
+        .rich-text-content h6 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+        }
+
+        .rich-text-content p {
+            margin-bottom: 1em;
+        }
+
+        .rich-text-content ul,
+        .rich-text-content ol {
+            margin-bottom: 1em;
+            padding-left: 1.5em;
+        }
+
+        .rich-text-content li {
+            margin-bottom: 0.5em;
+        }
+
+        .rich-text-content code {
+            background-color: #f8f9fa;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        .rich-text-content blockquote {
+            border-left: 4px solid #e9ecef;
+            margin: 0;
+            padding-left: 1em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">Guidelines Testing Dashboard</h1>
+            <div class="btn-group">
+                <button class="btn btn-outline-primary" onclick="editGuidelines()">
+                    <i class="bi bi-pencil"></i> Edit Guidelines
+                </button>
+                <button class="btn btn-primary" onclick="copyShareUrl()">
+                    <i class="bi bi-share"></i> Share
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card primary">
+                    <h6>Sample Notes</h6>
+                    <h2><%= sampleNotes.length %></h2>
+                    <p class="mb-0">Testing scenarios</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card success">
+                    <h6>Average Score</h6>
+                    <h2><%= stats.averageScore %>%</h2>
+                    <p class="mb-0">Across all samples</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card warning">
+                    <h6>Problem Areas</h6>
+                    <h2><%= stats.problemAreas %></h2>
+                    <p class="mb-0">Need attention</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card info">
+                    <h6>Guidelines Version</h6>
+                    <h2><%= guidelines.version %></h2>
+                    <p class="mb-0">Last updated <%= guidelines.lastUpdated %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Sample Notes Library -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Sample Notes To Test With</h5>
+                        <div class="text-muted small">Click any note to load it into the editor</div>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- Sample Notes List -->
+                        <div id="sampleNotesList" class="list-group list-group-flush">
+                            <!-- Note 1: Well-structured -->
+                            <div class="sample-note list-group-item" onclick="loadNote('note1')">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-text me-3 text-primary"></i>
+                                    <div>
+                                        <h6 class="mb-1">Well-Structured Progress Note</h6>
+                                        <p class="mb-0 text-muted small">Example of a complete and detailed session note</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Note 2: Basic -->
+                            <div class="sample-note list-group-item" onclick="loadNote('note2')">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-text me-3 text-primary"></i>
+                                    <div>
+                                        <h6 class="mb-1">Basic Progress Note</h6>
+                                        <p class="mb-0 text-muted small">Simple note needing more structure</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Note 3: Minimal -->
+                            <div class="sample-note list-group-item" onclick="loadNote('note3')">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-text me-3 text-primary"></i>
+                                    <div>
+                                        <h6 class="mb-1">Minimal Progress Note</h6>
+                                        <p class="mb-0 text-muted small">Brief note requiring significant improvement</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview & Results -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Note Preview & Analysis</h5>
+                        <div class="text-muted small">Test how your guidelines evaluate different notes</div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Editor -->
+                        <div class="mb-3">
+                            <div class="editor-toolbar mb-2">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="formatText('bold')">
+                                    <i class="bi bi-type-bold"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="formatText('italic')">
+                                    <i class="bi bi-type-italic"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="formatText('list')">
+                                    <i class="bi bi-list-ul"></i>
+                                </button>
+                                <div class="vr mx-2"></div>
+                                <button class="btn btn-sm btn-primary" onclick="testGuidelines()">
+                                    <i class="bi bi-play"></i> Test My Guidelines
+                                </button>
+                            </div>
+                            <textarea id="noteEditor" class="editor-content form-control" 
+                                    style="min-height: 200px; resize: vertical;"
+                                    placeholder="Click on a sample note to load it, or write your own note here to test the guidelines..."></textarea>
+                        </div>
+
+                        <!-- Results (Hidden by Default) -->
+                        <div id="analysisResults" class="mt-4" style="display: none;">
+                            <!-- Guidelines Analysis -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="card-title mb-0">Guidelines Analysis</h6>
+                                        <div id="overallScore" class="badge bg-success p-2">-</div>
+                                    </div>
+                                    
+                                    <!-- Analysis Content -->
+                                    <div id="analysisContent" class="rich-text-content"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Revised Note -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-title">Revised Note</h6>
+                                    <div id="revisedNote" class="rich-text-content border rounded p-3 bg-light"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Guidelines Feedback -->
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title mb-3">Improve My Guidelines</h6>
+                                    <p class="text-muted small">Based on the revised note above, how would you improve the guidelines?</p>
+                                    <div class="mb-3">
+                                        <textarea id="guidelinesFeedback" class="form-control" rows="3" 
+                                                placeholder="Share your thoughts on how to improve the guidelines..."></textarea>
+                                    </div>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="submitGuidelines()">
+                                        <i class="bi bi-pencil"></i> Update Guidelines
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guidelines Editor Modal -->
+    <div class="modal fade" id="guidelinesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Guidelines</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="pellEditor"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveGuidelines()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/pell"></script>
+    <script>
+        // Global variables
+        let currentNote = '';
+        let guidelinesModal;
+        let pellEditor;
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize modal
+            guidelinesModal = new bootstrap.Modal(document.getElementById('guidelinesModal'));
+            
+            // Initialize Pell editor
+            pellEditor = window.pell.init({
+                element: document.getElementById('pellEditor'),
+                defaultParagraphSeparator: 'p'
+            });
+            
+            // Load initial content
+            loadSampleNotes();
+        });
+        
+        // Load sample notes
+        async function loadSampleNotes() {
+            try {
+                const response = await fetch('/api/sample-notes');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load sample notes');
+                }
+                
+                const notesList = document.getElementById('sampleNotesList');
+                notesList.innerHTML = data.notes.map(note => `
+                    <div class="sample-note list-group-item" onclick="loadNote('${note.id}')">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-file-text me-3 text-primary"></i>
+                            <div>
+                                <h6 class="mb-1">${note.title}</h6>
+                                <p class="mb-0 text-muted small">${note.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading sample notes:', error);
+                showFeedback('Failed to load sample notes', 'error');
+            }
+        }
+        
+        // Load note for preview
+        async function loadNote(id) {
+            try {
+                const response = await fetch(`/api/sample-notes/${id}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load note');
+                }
+                
+                document.getElementById('noteEditor').value = data.note.content;
+                currentNote = data.note.content;
+                
+                // Hide any previous results
+                document.getElementById('analysisResults').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error loading note:', error);
+                showFeedback('Failed to load note', 'error');
+            }
+        }
+        
+        // Test guidelines
+        async function testGuidelines() {
+            const note = document.getElementById('noteEditor').value;
+            if (!note.trim()) {
+                showFeedback('Please write or select a note first', 'warning');
+                return;
+            }
+            
+            const button = document.querySelector('button');
+            showLoading(button);
+            
+            try {
+                const response = await fetch('/api/evaluate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ note })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to evaluate note');
+                }
+                
+                showResults(data.evaluation);
+                
+            } catch (error) {
+                console.error('Error evaluating note:', error);
+                showFeedback('Failed to evaluate note', 'error');
+            } finally {
+                hideLoading(button);
+            }
+        }
+        
+        // Show evaluation results
+        function showResults(evaluation) {
+            const resultsSection = document.getElementById('analysisResults');
+            const analysisContent = document.getElementById('analysisContent');
+            const revisedNote = document.getElementById('revisedNote');
+            const overallScore = document.getElementById('overallScore');
+            
+            // Update score
+            overallScore.textContent = evaluation.score ? `${evaluation.score}%` : '-';
+            overallScore.className = `badge p-2 ${getScoreClass(evaluation.score)}`;
+            
+            // Display analysis content
+            analysisContent.innerHTML = evaluation.analysis;
+            
+            // Show revised note if it's a progress note
+            if (evaluation.isProgressNote) {
+                revisedNote.innerHTML = evaluation.revisedNote;
+            } else {
+                revisedNote.innerHTML = '';
+            }
+            
+            // Show results
+            resultsSection.style.display = 'block';
+        }
+        
+        // Helper functions
+        function getScoreClass(score) {
+            if (!score) return 'bg-secondary';
+            if (score >= 80) return 'bg-success';
+            if (score >= 60) return 'bg-warning';
+            return 'bg-danger';
+        }
+        
+        function showFeedback(message, type) {
+            // Implementation of feedback display
+        }
+        
+        function showLoading(button) {
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+        }
+        
+        function hideLoading(button) {
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-play"></i> Test My Guidelines';
+        }
+        
+        // Guidelines editing
+        function editGuidelines() {
+            const content = document.querySelector('#pellEditor').content;
+            pellEditor.content.innerHTML = content;
+            guidelinesModal.show();
+        }
+        
+        async function saveGuidelines() {
+            const content = pellEditor.content.innerHTML;
+            
+            try {
+                const response = await fetch('/api/guidelines', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to save guidelines');
+                }
+                
+                showFeedback('Guidelines updated successfully', 'success');
+                guidelinesModal.hide();
+                
+            } catch (error) {
+                console.error('Error saving guidelines:', error);
+                showFeedback('Failed to save guidelines', 'error');
+            }
+        }
+        
+        async function submitGuidelines() {
+            const feedback = document.getElementById('guidelinesFeedback').value;
+            
+            try {
+                const response = await fetch('/api/guidelines-feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ feedback })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to submit feedback');
+                }
+                
+                showFeedback('Feedback submitted successfully', 'success');
+                
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                showFeedback('Failed to submit feedback', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
